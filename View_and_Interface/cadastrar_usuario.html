@@ -169,6 +169,80 @@
             box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
         }
 
+        /* Modal de sucesso */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            margin: 20% auto;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #ecf0f1;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            width: 0%;
+            animation: progress 3s linear forwards;
+        }
+
+        @keyframes progress {
+            to { width: 100%; }
+        }
+
         @media (max-width: 768px) {
             .content {
                 padding: 20px;
@@ -236,5 +310,58 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Sucesso -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <div class="modal-title">Sucesso!</div>
+            <div class="modal-message">Usuário cadastrado com sucesso!<br>Redirecionando para o menu principal...</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const modal = document.getElementById('successModal');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Previne o submit padrão
+
+                // Coleta os dados do formulário
+                const formData = new FormData(form);
+
+                // Faz requisição AJAX
+                fetch('/cadastrar_usuario', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Verifica se foi bem-sucedido
+                    if (data.status === 'success') {
+                        // Mostra o modal
+                        modal.style.display = 'block';
+
+                        // Redireciona após 3 segundos
+                        setTimeout(function() {
+                            window.location.href = '/menu';
+                        }, 3000);
+                    } else {
+                        // Se houver erro, redireciona para o menu
+                        console.error('Erro no cadastro:', data);
+                        window.location.href = '/menu';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro na requisição:', error);
+                    window.location.href = '/menu';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

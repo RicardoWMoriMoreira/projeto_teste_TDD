@@ -187,9 +187,9 @@ class BibliotecaController(BaseHTTPRequestHandler):
             controller.adicionar_usuario(usuario)
 
             self.send_response(200)
-            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.send_header("Content-type", "application/json; charset=utf-8")
             self.end_headers()
-            self.wfile.write(b"<h3>Usu\xc3\xa1rio cadastrado com sucesso!</h3><a href='/menu'>Voltar ao menu</a>")
+            self.wfile.write(b'{"status": "success", "message": "Usu\\u00e1rio cadastrado com sucesso!"}')
 
         elif self.path == "/cadastrar_livro":
             tamanho = int(self.headers["Content-Length"])
@@ -207,9 +207,9 @@ class BibliotecaController(BaseHTTPRequestHandler):
             controller.adicionar_livro(livro)
 
             self.send_response(200)
-            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.send_header("Content-type", "application/json; charset=utf-8")
             self.end_headers()
-            self.wfile.write(b"<h3>Livro cadastrado com sucesso!</h3><a href='/menu'>Voltar ao menu</a>")
+            self.wfile.write(b'{"status": "success", "message": "Livro cadastrado com sucesso!"}')
 
         elif self.path == "/realizar_emprestimo":
             tamanho = int(self.headers["Content-Length"])
