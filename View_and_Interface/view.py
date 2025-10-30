@@ -12,11 +12,6 @@ def _esc(v):
 # Instância do controller
 controller = ctl.Controller(login_required=False)
 
-# Dados globais para as views
-usuarios = controller.get_usuarios()
-livros = controller.get_livros()
-emprestimos = controller.get_emprestimos()
-
 
 class BibliotecaController(BaseHTTPRequestHandler):
 
@@ -36,7 +31,7 @@ class BibliotecaController(BaseHTTPRequestHandler):
 
         elif self.path == "/listar_usuarios":
             resposta = ""
-            for usuario in usuarios:
+            for usuario in controller.get_usuarios():
                 resposta += f"""
                 <div class="usuario">
                     <h3>{_esc(usuario.name)}</h3>
@@ -55,7 +50,7 @@ class BibliotecaController(BaseHTTPRequestHandler):
 
         elif self.path == "/listar_livros":
             resposta = ""
-            for livro in livros:
+            for livro in controller.get_livros():
                 status = "Disponível" if livro.available else "Emprestado"
                 resposta += f"""
                 <div class="livro">
@@ -75,7 +70,7 @@ class BibliotecaController(BaseHTTPRequestHandler):
 
         elif self.path == "/listar_emprestimos":
             resposta = ""
-            for emprestimo in emprestimos:
+            for emprestimo in controller.get_emprestimos():
                 usuario = controller.get_usuario_por_id(emprestimo.user_id)
                 livro = controller.get_livro_por_id(emprestimo.book_id)
                 usuario_nome = usuario.name if usuario else "Usuário não encontrado"
@@ -137,7 +132,6 @@ class BibliotecaController(BaseHTTPRequestHandler):
             }
 
             controller.adicionar_usuario(usuario)
-            usuarios.append(controller.get_usuario_por_id(usuario["id"]))
 
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
@@ -158,7 +152,6 @@ class BibliotecaController(BaseHTTPRequestHandler):
             }
 
             controller.adicionar_livro(livro)
-            livros.append(controller.get_livro_por_id(livro["id"]))
 
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
@@ -171,13 +164,12 @@ class BibliotecaController(BaseHTTPRequestHandler):
             params = parse_qs(dados)
 
             emprestimo = {
-                "id": f"l{len(emprestimos) + 1}",
+                "id": f"l{len(controller.get_emprestimos()) + 1}",
                 "user_id": params.get("user_id", [""])[0],
                 "book_id": params.get("book_id", [""])[0]
             }
 
             controller.realizar_emprestimo(emprestimo)
-            emprestimos.append(controller.get_emprestimo_por_id(emprestimo["id"]))
 
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
