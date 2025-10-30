@@ -1,7 +1,4 @@
 from Model import model as md
-from Model import User as user_model
-from Model import Book as book_model
-from Model import Loan as loan_model
 from datetime import datetime
 
 
@@ -11,7 +8,7 @@ class Controller:
 
     def adicionar_usuario(self, usuario_data):
         """Adiciona um novo usuário"""
-        novo_usuario = user_model.User(
+        novo_usuario = md.User(
             id=usuario_data["id"],
             name=usuario_data["name"],
             email=usuario_data["email"],
@@ -22,7 +19,7 @@ class Controller:
 
     def adicionar_livro(self, livro_data):
         """Adiciona um novo livro"""
-        novo_livro = book_model.Book(
+        novo_livro = md.Book(
             id=livro_data["id"],
             title=livro_data["title"],
             author=livro_data["author"],
@@ -34,7 +31,7 @@ class Controller:
 
     def realizar_emprestimo(self, emprestimo_data):
         """Realiza um empréstimo"""
-        novo_emprestimo = loan_model.Loan(
+        novo_emprestimo = md.Loan(
             id=emprestimo_data["id"],
             user_id=emprestimo_data["user_id"],
             book_id=emprestimo_data["book_id"],
@@ -97,7 +94,7 @@ class Controller:
 
 
 # Classe para autenticação (seguindo padrão do projeto de referência)
-class Ctrl_User(user_model.User):
+class Ctrl_User(md.User):
     def __init__(self, user_id, name, email, user_type):
         super().__init__(user_id, name, email, user_type)
 
