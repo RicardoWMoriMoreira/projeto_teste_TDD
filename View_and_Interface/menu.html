@@ -3,60 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Biblioteca</title>
+    <title>Sistema de Biblioteca - Equipe 4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .menu {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .menu h1 {
-            color: #333;
-            text-align: center;
-        }
-        .menu ul {
-            list-style: none;
+        * {
+            margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-        .menu li {
-            margin: 10px 0;
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
         }
-        .menu a {
-            display: block;
-            padding: 12px;
-            background: #007bff;
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2980b9 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: -30px auto 50px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .menu-section {
+            padding: 50px 40px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .menu-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2980b9, #1abc9c);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .menu-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .menu-card p {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .menu-card a {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             color: white;
             text-decoration: none;
-            border-radius: 4px;
-            text-align: center;
-            transition: background 0.3s;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
-        .menu a:hover {
-            background: #0056b3;
+
+        .menu-card a:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .menu-section {
+                padding: 30px 20px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="menu">
-        <h1>Sistema de Gestão de Biblioteca</h1>
-        <p>Equipe 4 - TDD</p>
+    <div class="header">
+        <h1>📚 Biblioteca Universitária</h1>
+        <p>Sistema de Gestão de Empréstimos - Equipe 4</p>
+    </div>
 
-        <ul>
-            <li><a href="/listar_usuarios">Listar Usuários</a></li>
-            <li><a href="/listar_livros">Listar Livros</a></li>
-            <li><a href="/listar_emprestimos">Listar Empréstimos</a></li>
-            <li><a href="/cadastrar_usuario">Cadastrar Usuário</a></li>
-            <li><a href="/cadastrar_livro">Cadastrar Livro</a></li>
-            <li><a href="/realizar_emprestimo">Realizar Empréstimo</a></li>
-        </ul>
+    <div class="container">
+        <div class="menu-section">
+            <div class="menu-grid">
+                <div class="menu-card">
+                    <h3>👥 Gerenciar Usuários</h3>
+                    <p>Visualize e cadastre novos usuários do sistema bibliotecário.</p>
+                    <a href="/listar_usuarios">Listar Usuários</a>
+                </div>
+
+                <div class="menu-card">
+                    <h3>📖 Catálogo de Livros</h3>
+                    <p>Explore nossa coleção completa de livros disponíveis.</p>
+                    <a href="/listar_livros">Listar Livros</a>
+                </div>
+
+                <div class="menu-card">
+                    <h3>📋 Controle de Empréstimos</h3>
+                    <p>Acompanhe todos os empréstimos ativos da biblioteca.</p>
+                    <a href="/listar_emprestimos">Listar Empréstimos</a>
+                </div>
+
+                <div class="menu-card">
+                    <h3>➕ Novo Usuário</h3>
+                    <p>Cadastre estudantes, professores e funcionários.</p>
+                    <a href="/cadastrar_usuario">Cadastrar Usuário</a>
+                </div>
+
+                <div class="menu-card">
+                    <h3>📚 Adicionar Livro</h3>
+                    <p>Incremente nosso acervo com novos títulos.</p>
+                    <a href="/cadastrar_livro">Cadastrar Livro</a>
+                </div>
+
+                <div class="menu-card">
+                    <h3>🔄 Realizar Empréstimo</h3>
+                    <p>Registre novos empréstimos para nossos usuários.</p>
+                    <a href="/realizar_emprestimo">Realizar Empréstimo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 Biblioteca Universitária - Sistema desenvolvido com TDD</p>
     </div>
 </body>
 </html>

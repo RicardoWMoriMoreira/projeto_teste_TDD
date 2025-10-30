@@ -32,12 +32,32 @@ class BibliotecaController(BaseHTTPRequestHandler):
         elif self.path == "/listar_usuarios":
             resposta = ""
             for usuario in controller.get_usuarios():
+                # Define o ícone baseado no tipo de usuário
+                if usuario.type == "Professor":
+                    icon = "👨‍🏫"
+                elif usuario.type == "Funcionário":
+                    icon = "👔"
+                else:
+                    icon = "👨‍🎓"
+
                 resposta += f"""
-                <div class="usuario">
-                    <h3>{_esc(usuario.name)}</h3>
-                    <p>ID: {_esc(usuario.id)}</p>
-                    <p>Email: {_esc(usuario.email)}</p>
-                    <p>Tipo: {_esc(usuario.type)}</p>
+                <div class="user-card">
+                    <div class="user-icon">{icon}</div>
+                    <div class="user-name">{_esc(usuario.name)}</div>
+                    <div class="user-info">
+                        <div class="user-info-item">
+                            <span class="user-info-label">ID:</span>
+                            <span class="user-info-value">{_esc(usuario.id)}</span>
+                        </div>
+                        <div class="user-info-item">
+                            <span class="user-info-label">Email:</span>
+                            <span class="user-info-value">{_esc(usuario.email)}</span>
+                        </div>
+                        <div class="user-info-item">
+                            <span class="user-info-label">Tipo:</span>
+                            <span class="user-info-value">{_esc(usuario.type)}</span>
+                        </div>
+                    </div>
                 </div>
                 """
             with open("View_and_Interface/listar_usuarios.html", "r", encoding="utf-8") as f:
@@ -52,12 +72,27 @@ class BibliotecaController(BaseHTTPRequestHandler):
             resposta = ""
             for livro in controller.get_livros():
                 status = "Disponível" if livro.available else "Emprestado"
+                status_class = "status-available" if livro.available else "status-borrowed"
+                icon = "📚" if livro.available else "🔒"
+
                 resposta += f"""
-                <div class="livro">
-                    <h3>{_esc(livro.title)}</h3>
-                    <p>Autor: {_esc(livro.author)}</p>
-                    <p>ISBN: {_esc(livro.isbn)}</p>
-                    <p>Status: {status}</p>
+                <div class="book-card">
+                    <div class="book-icon">{icon}</div>
+                    <div class="book-title">{_esc(livro.title)}</div>
+                    <div class="book-info">
+                        <div class="book-info-item">
+                            <span class="book-info-label">Autor:</span>
+                            <span class="book-info-value">{_esc(livro.author)}</span>
+                        </div>
+                        <div class="book-info-item">
+                            <span class="book-info-label">ISBN:</span>
+                            <span class="book-info-value">{_esc(livro.isbn)}</span>
+                        </div>
+                        <div class="book-info-item">
+                            <span class="book-info-label">Status:</span>
+                            <span class="status-badge {status_class}">{status}</span>
+                        </div>
+                    </div>
                 </div>
                 """
             with open("View_and_Interface/listar_livros.html", "r", encoding="utf-8") as f:
@@ -76,14 +111,32 @@ class BibliotecaController(BaseHTTPRequestHandler):
                 usuario_nome = usuario.name if usuario else "Usuário não encontrado"
                 livro_titulo = livro.title if livro else "Livro não encontrado"
                 data_devolucao = emprestimo.return_date.strftime("%d/%m/%Y") if emprestimo.return_date else "Não devolvido"
+                status_class = "status-returned" if emprestimo.return_date else "status-active"
+                status_text = "Devolvido" if emprestimo.return_date else "Em andamento"
+                icon = "✅" if emprestimo.return_date else "📖"
 
                 resposta += f"""
-                <div class="emprestimo">
-                    <h3>Empréstimo {_esc(emprestimo.id)}</h3>
-                    <p>Usuário: {_esc(usuario_nome)}</p>
-                    <p>Livro: {_esc(livro_titulo)}</p>
-                    <p>Data do empréstimo: {emprestimo.loan_date.strftime("%d/%m/%Y")}</p>
-                    <p>Data de devolução: {data_devolucao}</p>
+                <div class="loan-card">
+                    <div class="loan-icon">{icon}</div>
+                    <div class="loan-id">Empréstimo {_esc(emprestimo.id)}</div>
+                    <div class="loan-info">
+                        <div class="loan-info-item">
+                            <span class="loan-info-label">Usuário:</span>
+                            <span class="loan-info-value">{_esc(usuario_nome)}</span>
+                        </div>
+                        <div class="loan-info-item">
+                            <span class="loan-info-label">Livro:</span>
+                            <span class="loan-info-value">{_esc(livro_titulo)}</span>
+                        </div>
+                        <div class="loan-info-item">
+                            <span class="loan-info-label">Empréstimo:</span>
+                            <span class="loan-info-value">{emprestimo.loan_date.strftime("%d/%m/%Y")}</span>
+                        </div>
+                        <div class="loan-info-item">
+                            <span class="loan-info-label">Status:</span>
+                            <span class="return-status {status_class}">{status_text}</span>
+                        </div>
+                    </div>
                 </div>
                 """
             with open("View_and_Interface/listar_emprestimos.html", "r", encoding="utf-8") as f:

@@ -3,54 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuários - Sistema de Biblioteca</title>
+    <title>Usuários - Biblioteca Universitária</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .usuario {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 4px;
-            background: #fafafa;
-        }
-        .usuario h3 {
-            margin-top: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             color: #333;
         }
-        .usuario p {
-            margin: 5px 0;
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2980b9 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
-        .back-link {
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: -20px auto 50px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .user-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2980b9, #1abc9c);
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .user-icon {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .user-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .user-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .user-info-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .user-info-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .back-btn {
             display: inline-block;
-            margin-top: 20px;
-            padding: 10px 15px;
-            background: #6c757d;
+            margin-top: 40px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
             color: white;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(127, 140, 141, 0.3);
+            text-align: center;
         }
-        .back-link:hover {
-            background: #5a6268;
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #7f8c8d 0%, #6c7b7d 100%);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
+        }
+
+        .no-users {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .users-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .page-title {
+                font-size: 1.5em;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>👥 Usuários Cadastrados</h1>
+        <p>Biblioteca Universitária - Equipe 4</p>
+    </div>
+
     <div class="container">
-        <h1>Lista de Usuários</h1>
-        <!--USUARIOS-->
-        <a href="/menu" class="back-link">Voltar ao Menu</a>
+        <div class="content">
+            <h2 class="page-title">Lista de Usuários</h2>
+
+            <div class="users-grid">
+                <!--USUARIOS-->
+            </div>
+
+            <div style="text-align: center;">
+                <a href="/menu" class="back-btn">← Voltar ao Menu</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

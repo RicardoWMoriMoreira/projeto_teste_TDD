@@ -3,83 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Usuário - Sistema de Biblioteca</title>
+    <title>Cadastrar Usuário - Biblioteca Universitária</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .form-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin: 15px 0;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        button {
-            background: #28a745;
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2980b9 100%);
             color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: -20px auto 50px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+
+        .form-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2980b9, #1abc9c);
+        }
+
+        .form-icon {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+
+        .form-input, .form-select {
             width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
         }
-        button:hover {
-            background: #218838;
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            background: white;
         }
-        .back-link {
+
+        .form-input::placeholder {
+            color: #bdc3c7;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .back-btn {
             display: inline-block;
-            margin-top: 15px;
-            color: #6c757d;
+            margin-top: 25px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
             text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(127, 140, 141, 0.3);
+            text-align: center;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #7f8c8d 0%, #6c7b7d 100%);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 1.5em;
+            }
+
+            .form-icon {
+                font-size: 2.5em;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>Cadastrar Usuário</h1>
-        <form action="/cadastrar_usuario" method="post">
-            <div class="form-group">
-                <label for="id">ID:</label>
-                <input type="text" id="id" name="id" required>
+    <div class="header">
+        <h1>➕ Novo Usuário</h1>
+        <p>Biblioteca Universitária - Equipe 4</p>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <h2 class="page-title">Cadastrar Usuário</h2>
+
+            <div class="form-card">
+                <div class="form-icon">👤</div>
+
+                <form action="/cadastrar_usuario" method="post">
+                    <div class="form-group">
+                        <label class="form-label" for="id">ID do Usuário:</label>
+                        <input type="text" id="id" name="id" class="form-input" placeholder="Ex: u123" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="name">Nome Completo:</label>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="Digite o nome completo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email:</label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="usuario@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="type">Tipo de Usuário:</label>
+                        <select id="type" name="type" class="form-select" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="Estudante">👨‍🎓 Estudante</option>
+                            <option value="Professor">👨‍🏫 Professor</option>
+                            <option value="Funcionário">👔 Funcionário</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Cadastrar Usuário</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label for="name">Nome:</label>
-                <input type="text" id="name" name="name" required>
+
+            <div style="text-align: center;">
+                <a href="/menu" class="back-btn">← Voltar ao Menu</a>
             </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="type">Tipo:</label>
-                <select id="type" name="type" required>
-                    <option value="Estudante">Estudante</option>
-                    <option value="Professor">Professor</option>
-                    <option value="Funcionário">Funcionário</option>
-                </select>
-            </div>
-            <button type="submit">Cadastrar</button>
-        </form>
-        <a href="/menu" class="back-link">Voltar ao Menu</a>
+        </div>
     </div>
 </body>
 </html>
