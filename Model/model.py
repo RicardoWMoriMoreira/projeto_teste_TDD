@@ -18,7 +18,10 @@ class User:
     @classmethod
     def from_dict(cls, data):
         """Cria um objeto User a partir de um dicionário (do MongoDB)"""
-        return cls(**data)
+        # Filtra apenas os campos válidos para a classe User
+        valid_fields = {'id', 'name', 'email', 'type'}
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+        return cls(**filtered_data)
 
 
 @dataclass
@@ -36,7 +39,10 @@ class Book:
     @classmethod
     def from_dict(cls, data):
         """Cria um objeto Book a partir de um dicionário (do MongoDB)"""
-        return cls(**data)
+        # Filtra apenas os campos válidos para a classe Book
+        valid_fields = {'id', 'title', 'author', 'isbn', 'available'}
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+        return cls(**filtered_data)
 
 
 @dataclass
@@ -59,11 +65,17 @@ class Loan:
     @classmethod
     def from_dict(cls, data):
         """Cria um objeto Loan a partir de um dicionário (do MongoDB)"""
+        # Filtra apenas os campos válidos para a classe Loan
+        valid_fields = {'id', 'user_id', 'book_id', 'loan_date', 'return_date'}
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+
         # Converter strings ISO de volta para datetime
-        data['loan_date'] = datetime.fromisoformat(data['loan_date'])
-        if data.get('return_date'):
-            data['return_date'] = datetime.fromisoformat(data['return_date'])
-        return cls(**data)
+        if 'loan_date' in filtered_data:
+            filtered_data['loan_date'] = datetime.fromisoformat(filtered_data['loan_date'])
+        if filtered_data.get('return_date'):
+            filtered_data['return_date'] = datetime.fromisoformat(filtered_data['return_date'])
+
+        return cls(**filtered_data)
 
 
 class DatabaseManager:
