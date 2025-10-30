@@ -24,7 +24,7 @@ class Controller:
             title=livro_data["title"],
             author=livro_data["author"],
             isbn=livro_data["isbn"],
-            available=livro_data["available"]
+            available=livro_data.get("available", True)
         )
         md.adicionar_livro(novo_livro)
         return novo_livro
@@ -38,18 +38,11 @@ class Controller:
             loan_date=datetime.now()
         )
         md.adicionar_emprestimo(novo_emprestimo)
-
-        # Marcar livro como indisponível
-        for livro in md.books:
-            if livro.id == emprestimo_data["book_id"]:
-                livro.available = False
-                break
-
         return novo_emprestimo
 
     def devolver_livro(self, loan_id):
         """Devolve um livro"""
-        md.devolver_livro(loan_id)
+        return md.devolver_livro(loan_id)
 
     def get_usuarios(self):
         """Retorna todos os usuários"""
@@ -73,24 +66,15 @@ class Controller:
 
     def get_usuario_por_id(self, user_id):
         """Busca usuário por ID"""
-        for usuario in md.users:
-            if usuario.id == user_id:
-                return usuario
-        return None
+        return md.db_manager.get_usuario_por_id(user_id)
 
     def get_livro_por_id(self, book_id):
         """Busca livro por ID"""
-        for livro in md.books:
-            if livro.id == book_id:
-                return livro
-        return None
+        return md.db_manager.get_livro_por_id(book_id)
 
     def get_emprestimo_por_id(self, loan_id):
         """Busca empréstimo por ID"""
-        for emprestimo in md.loans:
-            if emprestimo.id == loan_id:
-                return emprestimo
-        return None
+        return md.db_manager.get_emprestimo_por_id(loan_id)
 
 
 # Classe para autenticação (seguindo padrão do projeto de referência)

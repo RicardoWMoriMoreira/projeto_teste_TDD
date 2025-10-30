@@ -216,8 +216,10 @@ class BibliotecaController(BaseHTTPRequestHandler):
             dados = self.rfile.read(tamanho).decode("utf-8")
             params = parse_qs(dados)
 
+            # Gerar ID único para empréstimo
+            import uuid
             emprestimo = {
-                "id": f"l{len(controller.get_emprestimos()) + 1}",
+                "id": f"l{str(uuid.uuid4())[:8]}",
                 "user_id": params.get("user_id", [""])[0],
                 "book_id": params.get("book_id", [""])[0]
             }
