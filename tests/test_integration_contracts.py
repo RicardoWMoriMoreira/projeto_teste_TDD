@@ -1,7 +1,7 @@
 import pytest
 import json
 from datetime import datetime
-from src.models import User, Book, Loan
+from Model.model import User, Book, Loan
 from src.report_service import ReportService
 
 
