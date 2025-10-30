@@ -23,32 +23,40 @@ class DatabaseConfig:
     def connect(self):
         """Conecta ao MongoDB"""
         try:
-            self.client = MongoClient(self.mongodb_uri)
+            self.client = MongoClient(self.mongodb_uri, serverSelectionTimeoutMS=5000)
             self.db = self.client[self.database_name]
 
             # Testa a conexão
             self.client.admin.command('ping')
-            print(f"✅ Conectado ao MongoDB: {self.database_name}")
+            print(f"SUCESSO: Conectado ao MongoDB: {self.database_name}")
+            print(f"Banco de dados: {self.database_name}")
             return True
 
-        except ConnectionFailure:
-            print("❌ Erro ao conectar ao MongoDB. Verifique se o MongoDB está rodando.")
+        except ConnectionFailure as e:
+            print(f"ERRO: Falha ao conectar ao MongoDB: {e}")
+            print("Verifique se o MongoDB esta rodando.")
             print("Para instalar MongoDB:")
             print("  Windows: https://www.mongodb.com/try/download/community")
             print("  Linux: sudo apt install mongodb")
             print("  macOS: brew install mongodb-community")
+            return False
+        except Exception as e:
+            print(f"ERRO inesperado na conexao: {e}")
             return False
 
     def disconnect(self):
         """Desconecta do MongoDB"""
         if self.client:
             self.client.close()
-            print("🔌 Desconectado do MongoDB")
+            print("DESCONECTADO: MongoDB")
 
     def get_collection(self, collection_name):
         """Retorna uma coleção específica"""
-        if not self.db:
+        if self.db is None:
             raise Exception("Banco de dados não conectado. Chame connect() primeiro.")
+        # Garantir que a collection existe
+        if collection_name not in self.db.list_collection_names():
+            print(f"Criando collection: {collection_name}")
         return self.db[collection_name]
 
     # Métodos específicos para cada coleção

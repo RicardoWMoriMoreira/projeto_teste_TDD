@@ -87,13 +87,32 @@ class DatabaseManager:
     def initialize_sample_data(self):
         """Inicializa o banco com dados de exemplo se estiver vazio"""
         try:
-            # Verificar se já existem dados
-            users_count = db_config.users_collection.count_documents({})
-            books_count = db_config.books_collection.count_documents({})
-            loans_count = db_config.loans_collection.count_documents({})
+            print("Verificando se banco precisa de dados iniciais...")
+
+            # Verificar se já existem dados de forma mais simples
+            try:
+                users_count = db_config.users_collection.count_documents({})
+                print(f"Usuarios existentes: {users_count}")
+            except Exception as count_error:
+                print(f"Erro ao contar usuarios: {count_error}")
+                users_count = 0
+
+            try:
+                books_count = db_config.books_collection.count_documents({})
+                print(f"Livros existentes: {books_count}")
+            except Exception as count_error:
+                print(f"Erro ao contar livros: {count_error}")
+                books_count = 0
+
+            try:
+                loans_count = db_config.loans_collection.count_documents({})
+                print(f"Emprestimos existentes: {loans_count}")
+            except Exception as count_error:
+                print(f"Erro ao contar emprestimos: {count_error}")
+                loans_count = 0
 
             if users_count == 0:
-                # Dados de exemplo para usuários
+                print("Inserindo usuarios de exemplo...")
                 sample_users = [
                     User("u1", "João Silva", "joao@email.com", "Estudante"),
                     User("u2", "Maria Santos", "maria@email.com", "Professor"),
@@ -101,11 +120,15 @@ class DatabaseManager:
                 ]
 
                 for user in sample_users:
-                    db_config.users_collection.insert_one(user.to_dict())
-                print("✅ Dados de exemplo de usuários inseridos")
+                    try:
+                        result = db_config.users_collection.insert_one(user.to_dict())
+                        print(f"Usuario {user.name} inserido com ID: {result.inserted_id}")
+                    except Exception as insert_error:
+                        print(f"ERRO ao inserir usuario {user.name}: {insert_error}")
+                print("Usuarios inseridos com sucesso")
 
             if books_count == 0:
-                # Dados de exemplo para livros
+                print("Inserindo livros de exemplo...")
                 sample_books = [
                     Book("b1", "Python para Iniciantes", "Alice Brown", "978-1234567890", True),
                     Book("b2", "Algoritmos e Estruturas de Dados", "Bob Wilson", "978-0987654321", True),
@@ -113,41 +136,53 @@ class DatabaseManager:
                 ]
 
                 for book in sample_books:
-                    db_config.books_collection.insert_one(book.to_dict())
-                print("✅ Dados de exemplo de livros inseridos")
+                    try:
+                        result = db_config.books_collection.insert_one(book.to_dict())
+                        print(f"Livro '{book.title}' inserido com ID: {result.inserted_id}")
+                    except Exception as insert_error:
+                        print(f"ERRO ao inserir livro {book.title}: {insert_error}")
+                print("Livros inseridos com sucesso")
 
             if loans_count == 0:
-                # Dados de exemplo para empréstimos
+                print("Inserindo emprestimos de exemplo...")
                 sample_loans = [
                     Loan("l1", "u1", "b1", datetime(2024, 1, 10)),
                     Loan("l2", "u1", "b2", datetime(2024, 1, 15))
                 ]
 
                 for loan in sample_loans:
-                    db_config.loans_collection.insert_one(loan.to_dict())
-                print("✅ Dados de exemplo de empréstimos inseridos")
+                    try:
+                        result = db_config.loans_collection.insert_one(loan.to_dict())
+                        print(f"Emprestimo {loan.id} inserido com ID: {result.inserted_id}")
+                    except Exception as insert_error:
+                        print(f"ERRO ao inserir emprestimo {loan.id}: {insert_error}")
+                print("Emprestimos inseridos com sucesso")
+
+            print("Inicializacao de dados concluida")
 
         except Exception as e:
-            print(f"❌ Erro ao inicializar dados de exemplo: {e}")
+            print(f"ERRO GERAL na inicializacao: {e}")
+            import traceback
+            traceback.print_exc()
 
     def adicionar_usuario(self, user: User):
         """Adiciona um novo usuário ao banco de dados"""
         try:
             result = db_config.users_collection.insert_one(user.to_dict())
-            print(f"✅ Usuário {user.name} adicionado com ID: {result.inserted_id}")
+            print(f"SUCESSO: Usuario {user.name} adicionado com ID: {result.inserted_id}")
             return result.inserted_id
         except Exception as e:
-            print(f"❌ Erro ao adicionar usuário: {e}")
+            print(f"ERRO: Falha ao adicionar usuario: {e}")
             return None
 
     def adicionar_livro(self, book: Book):
         """Adiciona um novo livro ao banco de dados"""
         try:
             result = db_config.books_collection.insert_one(book.to_dict())
-            print(f"✅ Livro '{book.title}' adicionado com ID: {result.inserted_id}")
+            print(f"SUCESSO: Livro '{book.title}' adicionado com ID: {result.inserted_id}")
             return result.inserted_id
         except Exception as e:
-            print(f"❌ Erro ao adicionar livro: {e}")
+            print(f"ERRO: Falha ao adicionar livro: {e}")
             return None
 
     def adicionar_emprestimo(self, loan: Loan):
@@ -156,7 +191,7 @@ class DatabaseManager:
             # Verificar se o livro está disponível
             book = self.get_livro_por_id(loan.book_id)
             if book and not book.available:
-                print(f"❌ Livro '{book.title}' não está disponível para empréstimo")
+                print(f"ERRO: Livro '{book.title}' nao esta disponivel para emprestimo")
                 return None
 
             result = db_config.loans_collection.insert_one(loan.to_dict())
@@ -167,12 +202,12 @@ class DatabaseManager:
                     {"id": loan.book_id},
                     {"$set": {"available": False}}
                 )
-                print(f"✅ Livro '{book.title}' marcado como emprestado")
+                print(f"SUCESSO: Livro '{book.title}' marcado como emprestado")
 
-            print(f"✅ Empréstimo {loan.id} registrado com ID: {result.inserted_id}")
+            print(f"SUCESSO: Emprestimo {loan.id} registrado com ID: {result.inserted_id}")
             return result.inserted_id
         except Exception as e:
-            print(f"❌ Erro ao adicionar empréstimo: {e}")
+            print(f"ERRO: Falha ao adicionar emprestimo: {e}")
             return None
 
     def get_usuarios(self) -> List[User]:
@@ -181,7 +216,7 @@ class DatabaseManager:
             users_data = list(db_config.users_collection.find())
             return [User.from_dict(user_data) for user_data in users_data]
         except Exception as e:
-            print(f"❌ Erro ao buscar usuários: {e}")
+            print(f"ERRO: Falha ao buscar usuarios: {e}")
             return []
 
     def get_livros(self) -> List[Book]:
@@ -190,7 +225,7 @@ class DatabaseManager:
             books_data = list(db_config.books_collection.find())
             return [Book.from_dict(book_data) for book_data in books_data]
         except Exception as e:
-            print(f"❌ Erro ao buscar livros: {e}")
+            print(f"ERRO: Falha ao buscar livros: {e}")
             return []
 
     def get_emprestimos(self) -> List[Loan]:
@@ -199,7 +234,7 @@ class DatabaseManager:
             loans_data = list(db_config.loans_collection.find())
             return [Loan.from_dict(loan_data) for loan_data in loans_data]
         except Exception as e:
-            print(f"❌ Erro ao buscar empréstimos: {e}")
+            print(f"ERRO: Falha ao buscar emprestimos: {e}")
             return []
 
     def get_livros_disponiveis(self) -> List[Book]:
@@ -208,7 +243,7 @@ class DatabaseManager:
             books_data = list(db_config.books_collection.find({"available": True}))
             return [Book.from_dict(book_data) for book_data in books_data]
         except Exception as e:
-            print(f"❌ Erro ao buscar livros disponíveis: {e}")
+            print(f"ERRO: Falha ao buscar livros disponiveis: {e}")
             return []
 
     def get_usuario_por_id(self, user_id: str) -> Optional[User]:
@@ -217,7 +252,7 @@ class DatabaseManager:
             user_data = db_config.users_collection.find_one({"id": user_id})
             return User.from_dict(user_data) if user_data else None
         except Exception as e:
-            print(f"❌ Erro ao buscar usuário {user_id}: {e}")
+            print(f"ERRO: Falha ao buscar usuario {user_id}: {e}")
             return None
 
     def get_livro_por_id(self, book_id: str) -> Optional[Book]:
@@ -226,7 +261,7 @@ class DatabaseManager:
             book_data = db_config.books_collection.find_one({"id": book_id})
             return Book.from_dict(book_data) if book_data else None
         except Exception as e:
-            print(f"❌ Erro ao buscar livro {book_id}: {e}")
+            print(f"ERRO: Falha ao buscar livro {book_id}: {e}")
             return None
 
     def get_emprestimo_por_id(self, loan_id: str) -> Optional[Loan]:
@@ -235,7 +270,7 @@ class DatabaseManager:
             loan_data = db_config.loans_collection.find_one({"id": loan_id})
             return Loan.from_dict(loan_data) if loan_data else None
         except Exception as e:
-            print(f"❌ Erro ao buscar empréstimo {loan_id}: {e}")
+            print(f"ERRO: Falha ao buscar emprestimo {loan_id}: {e}")
             return None
 
     def get_emprestimos_por_usuario(self, user_id: str) -> List[Loan]:
@@ -244,7 +279,7 @@ class DatabaseManager:
             loans_data = list(db_config.loans_collection.find({"user_id": user_id}))
             return [Loan.from_dict(loan_data) for loan_data in loans_data]
         except Exception as e:
-            print(f"❌ Erro ao buscar empréstimos do usuário {user_id}: {e}")
+            print(f"ERRO: Falha ao buscar emprestimos do usuario {user_id}: {e}")
             return []
 
     def get_emprestimos_por_livro(self, book_id: str) -> List[Loan]:
@@ -253,7 +288,7 @@ class DatabaseManager:
             loans_data = list(db_config.loans_collection.find({"book_id": book_id}))
             return [Loan.from_dict(loan_data) for loan_data in loans_data]
         except Exception as e:
-            print(f"❌ Erro ao buscar empréstimos do livro {book_id}: {e}")
+            print(f"ERRO: Falha ao buscar emprestimos do livro {book_id}: {e}")
             return []
 
     def devolver_livro(self, loan_id: str) -> bool:
@@ -262,11 +297,11 @@ class DatabaseManager:
             # Buscar o empréstimo
             loan = self.get_emprestimo_por_id(loan_id)
             if not loan:
-                print(f"❌ Empréstimo {loan_id} não encontrado")
+                print(f"ERRO: Emprestimo {loan_id} nao encontrado")
                 return False
 
             if loan.return_date:
-                print(f"⚠️ Empréstimo {loan_id} já foi devolvido")
+                print(f"AVISO: Emprestimo {loan_id} ja foi devolvido")
                 return False
 
             # Atualizar empréstimo com data de devolução
@@ -287,14 +322,14 @@ class DatabaseManager:
                 book = self.get_livro_por_id(loan.book_id)
                 book_title = book.title if book else "Livro desconhecido"
 
-                print(f"✅ Livro '{book_title}' devolvido com sucesso")
+                print(f"SUCESSO: Livro '{book_title}' devolvido com sucesso")
                 return True
             else:
-                print(f"❌ Falha ao atualizar empréstimo {loan_id}")
+                print(f"ERRO: Falha ao atualizar emprestimo {loan_id}")
                 return False
 
         except Exception as e:
-            print(f"❌ Erro ao devolver livro: {e}")
+            print(f"ERRO: Falha ao devolver livro: {e}")
             return False
 
     # ========================================
@@ -344,7 +379,7 @@ class DatabaseManager:
             result = list(db_config.loans_collection.aggregate(pipeline))
             return result
         except Exception as e:
-            print(f"❌ Erro na pipeline de livros mais emprestados: {e}")
+            print(f"ERRO: Falha na pipeline de livros mais emprestados: {e}")
             return []
 
     def get_relatorio_usuarios_mais_ativos(self, limit: int = 10) -> List[Dict]:
@@ -388,7 +423,7 @@ class DatabaseManager:
             result = list(db_config.loans_collection.aggregate(pipeline))
             return result
         except Exception as e:
-            print(f"❌ Erro na pipeline de usuários mais ativos: {e}")
+            print(f"ERRO: Falha na pipeline de usuarios mais ativos: {e}")
             return []
 
     def get_estatisticas_gerais(self) -> Dict:
@@ -451,7 +486,7 @@ class DatabaseManager:
             }
 
         except Exception as e:
-            print(f"❌ Erro ao gerar estatísticas gerais: {e}")
+            print(f"ERRO: Falha ao gerar estatisticas gerais: {e}")
             return {}
 
     def get_relatorio_emprestimos_por_periodo(self, start_date: datetime, end_date: datetime) -> List[Dict]:
@@ -516,7 +551,7 @@ class DatabaseManager:
             result = list(db_config.loans_collection.aggregate(pipeline))
             return result
         except Exception as e:
-            print(f"❌ Erro na pipeline de empréstimos por período: {e}")
+            print(f"ERRO: Falha na pipeline de emprestimos por periodo: {e}")
             return []
 
     def get_relatorio_livros_atrasados(self) -> List[Dict]:
@@ -583,7 +618,7 @@ class DatabaseManager:
 
             return result
         except Exception as e:
-            print(f"❌ Erro na pipeline de livros atrasados: {e}")
+            print(f"ERRO: Falha na pipeline de livros atrasados: {e}")
             return []
 
     def get_relatorio_popularidade_por_categoria(self) -> List[Dict]:
@@ -631,7 +666,7 @@ class DatabaseManager:
             result = list(db_config.loans_collection.aggregate(pipeline))
             return result
         except Exception as e:
-            print(f"❌ Erro na pipeline de popularidade por categoria: {e}")
+            print(f"ERRO: Falha na pipeline de popularidade por categoria: {e}")
             return []
 
 
