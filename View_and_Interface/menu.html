@@ -53,6 +53,7 @@
 
         .menu-section {
             padding: 50px 40px;
+            position: relative;
         }
 
         .menu-grid {
@@ -60,6 +61,8 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
             margin-top: 40px;
+            position: relative;
+            z-index: 2;
         }
 
         .menu-card {
@@ -72,6 +75,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .menu-card::before {
@@ -85,8 +89,47 @@
         }
 
         .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        /* Overlay escuro para o efeito de foco */
+        .focus-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Classe para ativar o overlay */
+        .focus-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Destaque especial para o card em hover */
+        .menu-card:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3) !important;
+        }
+
+        .menu-card:hover h3 {
+            color: #2980b9;
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        .menu-card:hover a {
+            background: linear-gradient(135deg, #2980b9 0%, #1f4e79 100%);
+            transform: scale(1.05);
         }
 
         .menu-card h3 {
@@ -194,11 +237,42 @@
                     <a href="/realizar_emprestimo">Realizar Empréstimo</a>
                 </div>
             </div>
+
+            <!-- Overlay para escurecer o fundo -->
+            <div class="focus-overlay" id="focusOverlay"></div>
         </div>
     </div>
 
     <div class="footer">
         <p>© 2024 Biblioteca Universitária - Sistema desenvolvido com TDD</p>
     </div>
+
+    <script>
+        let overlayTimeout;
+
+        function showOverlay() {
+            clearTimeout(overlayTimeout);
+            const overlay = document.getElementById('focusOverlay');
+            overlay.classList.add('active');
+        }
+
+        function hideOverlay() {
+            const overlay = document.getElementById('focusOverlay');
+            // Pequeno delay para evitar flickering quando move entre cards
+            overlayTimeout = setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 100);
+        }
+
+        // Adicionar listeners para todos os cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.menu-card');
+
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', showOverlay);
+                card.addEventListener('mouseleave', hideOverlay);
+            });
+        });
+    </script>
 </body>
 </html>
