@@ -28,7 +28,7 @@ def test_listar_usuarios():
             for usuario in usuarios_com_problemas:
                 print(f"   ID: '{usuario.id}', Nome: '{usuario.name}', Email: '{usuario.email}', Tipo: '{usuario.type}'")
         else:
-            print("\nSUCESSO: Todos os usuarios tem dados completos!")
+            print("\nSISTEMA DE GESTA DE BIBLIOTECA")
 
     except Exception as e:
         print(f"❌ Erro ao testar usuários: {e}")

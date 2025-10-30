@@ -19,7 +19,7 @@ def clean_database():
         db_config.books_collection.delete_many({})
         db_config.loans_collection.delete_many({})
 
-        print("SUCESSO: Banco de dados limpo com sucesso!")
+        print("SISTEMA DE GESTA DE BIBLIOTECA")
         return True
 
     except Exception as e:

@@ -1,6 +1,14 @@
 from collections import Counter
 from typing import List, Dict, Any
-from src.models import User, Book, Loan
+import sys
+from pathlib import Path
+
+# Adicionar o diretório raiz ao path
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
+from Model.model import User, Book, Loan
 
 
 class ReportService:

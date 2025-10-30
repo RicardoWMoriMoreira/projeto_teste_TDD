@@ -28,7 +28,7 @@ class DatabaseConfig:
 
             # Testa a conexão
             self.client.admin.command('ping')
-            print(f"SUCESSO: Conectado ao MongoDB: {self.database_name}")
+            print(f"SISTEMA DE GESTA DE BIBLIOTECA")
             print(f"Banco de dados: {self.database_name}")
             return True
 

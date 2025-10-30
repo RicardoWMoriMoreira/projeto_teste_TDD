@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Biblioteca - Equipe 4</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Sistema de Gestão Bibliotecária - Portal Administrativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -13,262 +14,315 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
-            color: #333;
+            color: #1e293b;
+            line-height: 1.6;
         }
 
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2980b9 100%);
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             color: white;
-            padding: 40px 20px;
+            padding: 60px 20px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
+            font-size: 3em;
             font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 16px;
+            letter-spacing: -0.025em;
         }
 
-        .header p {
-            font-size: 1.1em;
+        .header .subtitle {
+            font-size: 1.25em;
             opacity: 0.9;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .header .institution {
+            font-size: 1em;
+            opacity: 0.8;
             font-weight: 300;
+            letter-spacing: 0.5px;
         }
 
         .container {
-            max-width: 1000px;
-            margin: -30px auto 50px;
+            max-width: 1200px;
+            margin: -40px auto 60px;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             overflow: hidden;
             position: relative;
+            border: 1px solid #e2e8f0;
         }
 
         .menu-section {
-            padding: 50px 40px;
-            position: relative;
+            padding: 80px 60px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5em;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+            letter-spacing: -0.025em;
+        }
+
+        .section-title p {
+            font-size: 1.125em;
+            color: #64748b;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-            position: relative;
-            z-index: 2;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
         }
 
         .menu-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: none;
-            border-radius: 15px;
-            padding: 30px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 40px 32px;
             text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.2s ease;
             cursor: pointer;
-        }
-
-        .menu-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #3498db, #2980b9, #1abc9c);
+            position: relative;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
 
         .menu-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
-            z-index: 10;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #3b82f6;
         }
 
-        /* Efeito de destacar apenas o card em foco */
-        .menu-section {
-            transition: all 0.4s ease;
+        .menu-card-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+            transition: all 0.2s ease;
         }
 
-        .menu-card {
-            transition: all 0.4s ease;
-        }
-
-        /* Quando a seção tem foco em algum card */
-        .menu-section.has-focus .menu-card {
-            filter: brightness(0.4) saturate(0.5) blur(1px);
-            transform: scale(0.98);
-            opacity: 0.6;
-        }
-
-        /* O card em foco fica destacado */
-        .menu-section.has-focus .menu-card:hover {
-            filter: brightness(1.1) saturate(1.2) blur(0);
+        .menu-card:hover .menu-card-icon {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
             transform: scale(1.05);
-            opacity: 1;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-            z-index: 20;
-        }
-
-        /* Destaque especial para o card em hover */
-        .menu-section.has-focus .menu-card:hover h3 {
-            color: #2980b9;
-            transform: scale(1.08);
-        }
-
-        .menu-section.has-focus .menu-card:hover a {
-            background: linear-gradient(135deg, #2980b9 0%, #1f4e79 100%);
-            transform: scale(1.08);
-            box-shadow: 0 10px 30px rgba(41, 128, 185, 0.5);
         }
 
         .menu-card h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.4em;
-            margin-bottom: 15px;
-            color: #2c3e50;
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1e293b;
+            letter-spacing: -0.025em;
         }
 
         .menu-card p {
-            color: #7f8c8d;
-            margin-bottom: 20px;
-            font-size: 0.95em;
-            line-height: 1.5;
+            color: #64748b;
+            margin-bottom: 32px;
+            font-size: 1em;
+            line-height: 1.6;
+            font-weight: 400;
         }
 
         .menu-card a {
-            display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             text-decoration: none;
-            border-radius: 25px;
+            border-radius: 8px;
             font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px 0 rgba(59, 130, 246, 0.3);
         }
 
         .menu-card a:hover {
-            background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
         .footer {
-            background: #2c3e50;
-            color: white;
+            background: #1e293b;
+            color: #94a3b8;
             text-align: center;
-            padding: 20px;
-            font-size: 0.9em;
+            padding: 40px 20px;
+            font-size: 0.95em;
+            border-top: 1px solid #334155;
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .footer .copyright {
+            font-size: 0.875em;
+            opacity: 0.7;
+            font-weight: 300;
         }
 
         @media (max-width: 768px) {
             .header {
-                padding: 30px 20px;
+                padding: 40px 20px;
             }
 
             .header h1 {
-                font-size: 2em;
+                font-size: 2.25em;
+            }
+
+            .header .subtitle {
+                font-size: 1.125em;
             }
 
             .menu-section {
-                padding: 30px 20px;
+                padding: 50px 30px;
+            }
+
+            .section-title h2 {
+                font-size: 2em;
             }
 
             .menu-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 30px;
+            }
+
+            .menu-card {
+                padding: 32px 24px;
+            }
+        }
+
+        /* Subtle animations */
+        .menu-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .menu-card:nth-child(1) { animation-delay: 0.1s; }
+        .menu-card:nth-child(2) { animation-delay: 0.2s; }
+        .menu-card:nth-child(3) { animation-delay: 0.3s; }
+        .menu-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>📚 Biblioteca Universitária</h1>
-        <p>Sistema de Gestão de Empréstimos - Equipe 4</p>
+        <div class="header-content">
+            <h1>Sistema de Gestão Bibliotecária</h1>
+            <p class="subtitle">Portal Administrativo</p>
+            <p class="institution">Sistema profissional de gestão de acervo e empréstimos</p>
+        </div>
     </div>
 
     <div class="container">
         <div class="menu-section">
-            <div class="menu-grid">
-                <div class="menu-card">
-                    <h3>👥 Gerenciar Usuários</h3>
-                    <p>Visualize e cadastre novos usuários do sistema bibliotecário.</p>
-                    <a href="/listar_usuarios">Listar Usuários</a>
-                </div>
-
-                <div class="menu-card">
-                    <h3>📖 Catálogo de Livros</h3>
-                    <p>Explore nossa coleção completa de livros disponíveis.</p>
-                    <a href="/listar_livros">Listar Livros</a>
-                </div>
-
-                <div class="menu-card">
-                    <h3>📋 Controle de Empréstimos</h3>
-                    <p>Acompanhe todos os empréstimos ativos da biblioteca.</p>
-                    <a href="/listar_emprestimos">Listar Empréstimos</a>
-                </div>
-
-                <div class="menu-card">
-                    <h3>➕ Novo Usuário</h3>
-                    <p>Cadastre estudantes, professores e funcionários.</p>
-                    <a href="/cadastrar_usuario">Cadastrar Usuário</a>
-                </div>
-
-                <div class="menu-card">
-                    <h3>📚 Adicionar Livro</h3>
-                    <p>Incremente nosso acervo com novos títulos.</p>
-                    <a href="/cadastrar_livro">Cadastrar Livro</a>
-                </div>
-
-                <div class="menu-card">
-                    <h3>🔄 Realizar Empréstimo</h3>
-                    <p>Registre novos empréstimos para nossos usuários.</p>
-                    <a href="/realizar_emprestimo">Realizar Empréstimo</a>
-                </div>
+            <div class="section-title">
+                <h2>Painel de Controle</h2>
+                <p>Acesse os principais módulos do sistema de gestão bibliotecária</p>
             </div>
 
+            <div class="menu-grid">
+                <div class="menu-card">
+                    <div class="menu-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Gestão de Usuários</h3>
+                    <p>Administre perfis de estudantes, professores e funcionários com controle de acesso e permissões.</p>
+                    <a href="/listar_usuarios">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Acessar Usuários</span>
+                    </a>
+                </div>
+
+                <div class="menu-card">
+                    <div class="menu-card-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Catálogo de Livros</h3>
+                    <p>Gerencie o acervo bibliográfico com organização por categorias e controle de disponibilidade.</p>
+                    <a href="/listar_livros">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Explorar Livros</span>
+                    </a>
+                </div>
+
+                <div class="menu-card">
+                    <div class="menu-card-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h3>Controle de Empréstimos</h3>
+                    <p>Monitore empréstimos ativos, devoluções pendentes e histórico de operações.</p>
+                    <a href="/listar_emprestimos">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Gerenciar Empréstimos</span>
+                    </a>
+                </div>
+
+                <div class="menu-card">
+                    <div class="menu-card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Relatórios e Analytics</h3>
+                    <p>Análises estatísticas, relatórios de uso e métricas de performance do sistema.</p>
+                    <a href="/relatorios">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Ver Relatórios</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="footer">
-        <p>© 2024 Biblioteca Universitária - Sistema desenvolvido com TDD</p>
+        <div class="footer-content">
+            <p><strong>Sistema de Gestão Bibliotecária</strong> - Versão 2024</p>
+            <p class="copyright">© 2024 Sistema desenvolvido para gestão eficiente de bibliotecas acadêmicas</p>
+        </div>
     </div>
 
-    <script>
-        let focusTimeout;
-        const menuSection = document.querySelector('.menu-section');
-
-        function showFocus() {
-            clearTimeout(focusTimeout);
-            menuSection.classList.add('has-focus');
-        }
-
-        function hideFocus() {
-            // Pequeno delay para evitar flickering quando move entre cards
-            focusTimeout = setTimeout(() => {
-                menuSection.classList.remove('has-focus');
-            }, 50);
-        }
-
-        // Adicionar listeners para todos os cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.menu-card');
-
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', showFocus);
-                card.addEventListener('mouseleave', hideFocus);
-            });
-        });
-    </script>
 </body>
 </html>

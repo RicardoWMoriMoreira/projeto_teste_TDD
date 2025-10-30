@@ -105,7 +105,7 @@ def test_pipelines():
         else:
             print("Dados insuficientes para analise de popularidade.")
 
-        print("\nSUCESSO: Todos os testes de pipeline foram executados!")
+        print("\nSISTEMA DE GESTA DE BIBLIOTECA")
 
     except Exception as e:
         print(f"❌ Erro durante os testes: {e}")

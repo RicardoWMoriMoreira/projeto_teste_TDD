@@ -1,7 +1,14 @@
 from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
 from typing import Optional, List, Dict
-from config.database import db_config
+
+# Import opcional do MongoDB - funciona sem ele
+try:
+    from config.database import db_config
+    MONGODB_AVAILABLE = True
+except ImportError:
+    MONGODB_AVAILABLE = False
+    print("MongoDB não disponível - usando banco de dados em memória")
 
 
 @dataclass
@@ -79,17 +86,28 @@ class Loan:
 
 
 class DatabaseManager:
-    """Gerenciador do banco de dados MongoDB"""
+    """Gerenciador do banco de dados - MongoDB ou Memória"""
 
     def __init__(self):
         self.connected = False
+        self.using_memory = not MONGODB_AVAILABLE
+
+        # Dados em memória (fallback)
+        self.memory_users = []
+        self.memory_books = []
+        self.memory_loans = []
 
     def connect(self):
         """Conecta ao banco de dados"""
-        self.connected = db_config.connect()
-        if self.connected:
+        if self.using_memory:
+            self.connected = True
             self.initialize_sample_data()
-        return self.connected
+            return True
+        else:
+            self.connected = db_config.connect()
+            if self.connected:
+                self.initialize_sample_data()
+            return self.connected
 
     def disconnect(self):
         """Desconecta do banco de dados"""
@@ -99,81 +117,108 @@ class DatabaseManager:
     def initialize_sample_data(self):
         """Inicializa o banco com dados de exemplo se estiver vazio"""
         try:
-            print("Verificando se banco precisa de dados iniciais...")
 
-            # Verificar se já existem dados de forma mais simples
-            try:
-                users_count = db_config.users_collection.count_documents({})
-                print(f"Usuarios existentes: {users_count}")
-            except Exception as count_error:
-                print(f"Erro ao contar usuarios: {count_error}")
-                users_count = 0
+            if self.using_memory:
 
-            try:
-                books_count = db_config.books_collection.count_documents({})
-                print(f"Livros existentes: {books_count}")
-            except Exception as count_error:
-                print(f"Erro ao contar livros: {count_error}")
-                books_count = 0
-
-            try:
-                loans_count = db_config.loans_collection.count_documents({})
-                print(f"Emprestimos existentes: {loans_count}")
-            except Exception as count_error:
-                print(f"Erro ao contar emprestimos: {count_error}")
-                loans_count = 0
-
-            if users_count == 0:
-                print("Inserindo usuarios de exemplo...")
+                # Dados de exemplo para memória
                 sample_users = [
                     User("u1", "João Silva", "joao@email.com", "Estudante"),
                     User("u2", "Maria Santos", "maria@email.com", "Professor"),
-                    User("u3", "Pedro Costa", "pedro@email.com", "Estudante")
+                    User("u3", "Pedro Costa", "pedro@email.com", "Estudante"),
+                    User("u4", "Ana Oliveira", "ana@email.com", "Funcionário"),
+                    User("u5", "Carlos Mendes", "carlos@email.com", "Professor")
                 ]
 
-                for user in sample_users:
-                    try:
-                        result = db_config.users_collection.insert_one(user.to_dict())
-                        print(f"Usuario {user.name} inserido com ID: {result.inserted_id}")
-                    except Exception as insert_error:
-                        print(f"ERRO ao inserir usuario {user.name}: {insert_error}")
-                print("Usuarios inseridos com sucesso")
-
-            if books_count == 0:
-                print("Inserindo livros de exemplo...")
                 sample_books = [
-                    Book("b1", "Python para Iniciantes", "Alice Brown", "978-1234567890", True),
-                    Book("b2", "Algoritmos e Estruturas de Dados", "Bob Wilson", "978-0987654321", True),
-                    Book("b3", "Banco de Dados Relacionais", "Carol Davis", "978-1122334455", False)
+                    Book("b1", "Python para Iniciantes", "João Autor", "978-1234567890", True),
+                    Book("b2", "Algoritmos e Estruturas de Dados", "Maria Autora", "978-1234567891", False),  # emprestado
+                    Book("b3", "Banco de Dados", "Pedro Autor", "978-1234567892", True),
+                    Book("b4", "Cálculo I", "Ana Matemática", "978-1234567893", False),  # emprestado
+                    Book("b5", "Engenharia de Software", "Carlos Dev", "978-1234567894", True)
                 ]
 
-                for book in sample_books:
-                    try:
-                        result = db_config.books_collection.insert_one(book.to_dict())
-                        print(f"Livro '{book.title}' inserido com ID: {result.inserted_id}")
-                    except Exception as insert_error:
-                        print(f"ERRO ao inserir livro {book.title}: {insert_error}")
-                print("Livros inseridos com sucesso")
-
-            if loans_count == 0:
-                print("Inserindo emprestimos de exemplo...")
                 sample_loans = [
-                    Loan("l1", "u1", "b1", datetime(2024, 1, 10)),
-                    Loan("l2", "u1", "b2", datetime(2024, 1, 15))
+                    Loan("l1", "u1", "b2", datetime.now() - timedelta(days=5), None),  # ativo
+                    Loan("l2", "u2", "b4", datetime.now() - timedelta(days=10), datetime.now() - timedelta(days=2)),  # devolvido
+                    Loan("l3", "u3", "b1", datetime.now() - timedelta(days=3), None)   # ativo
                 ]
 
-                for loan in sample_loans:
-                    try:
-                        result = db_config.loans_collection.insert_one(loan.to_dict())
-                        print(f"Emprestimo {loan.id} inserido com ID: {result.inserted_id}")
-                    except Exception as insert_error:
-                        print(f"ERRO ao inserir emprestimo {loan.id}: {insert_error}")
-                print("Emprestimos inseridos com sucesso")
+                self.memory_users = sample_users
+                self.memory_books = sample_books
+                self.memory_loans = sample_loans
 
-            print("Inicializacao de dados concluida")
+            else:
+                # Código original para MongoDB
+
+                # Verificar se já existem dados
+                try:
+                    users_count = db_config.users_collection.count_documents({})
+                    print(f"Usuarios existentes: {users_count}")
+                except Exception as count_error:
+                    print(f"Erro ao contar usuarios: {count_error}")
+                    users_count = 0
+
+                try:
+                    books_count = db_config.books_collection.count_documents({})
+                    print(f"Livros existentes: {books_count}")
+                except Exception as count_error:
+                    print(f"Erro ao contar livros: {count_error}")
+                    books_count = 0
+
+                try:
+                    loans_count = db_config.loans_collection.count_documents({})
+                    print(f"Emprestimos existentes: {loans_count}")
+                except Exception as count_error:
+                    print(f"Erro ao contar emprestimos: {count_error}")
+                    loans_count = 0
+
+                if users_count == 0:
+                    print("Inserindo usuarios de exemplo...")
+                    sample_users = [
+                        User("u1", "João Silva", "joao@email.com", "Estudante"),
+                        User("u2", "Maria Santos", "maria@email.com", "Professor"),
+                        User("u3", "Pedro Costa", "pedro@email.com", "Estudante")
+                    ]
+
+                    for user in sample_users:
+                        try:
+                            result = db_config.users_collection.insert_one(user.to_dict())
+                            print(f"Usuario {user.name} inserido com ID: {result.inserted_id}")
+                        except Exception as insert_error:
+                            print(f"ERRO ao inserir usuario {user.name}: {insert_error}")
+
+                if books_count == 0:
+                    print("Inserindo livros de exemplo...")
+                    sample_books = [
+                        Book("b1", "Python para Iniciantes", "Alice Brown", "978-1234567890", False),  # emprestado (l1)
+                        Book("b2", "Algoritmos e Estruturas de Dados", "Bob Wilson", "978-0987654321", False),  # emprestado (l2)
+                        Book("b3", "Banco de Dados Relacionais", "Carol Davis", "978-1122334455", True)  # disponível
+                    ]
+
+                    for book in sample_books:
+                        try:
+                            result = db_config.books_collection.insert_one(book.to_dict())
+                            print(f"Livro '{book.title}' inserido com ID: {result.inserted_id}")
+                        except Exception as insert_error:
+                            print(f"ERRO ao inserir livro {book.title}: {insert_error}")
+
+                if loans_count == 0:
+                    print("Inserindo emprestimos de exemplo...")
+                    sample_loans = [
+                        Loan("l1", "u1", "b1", datetime(2024, 1, 10)),
+                        Loan("l2", "u1", "b2", datetime(2024, 1, 15))
+                    ]
+
+                    for loan in sample_loans:
+                        try:
+                            result = db_config.loans_collection.insert_one(loan.to_dict())
+                            print(f"Emprestimo {loan.id} inserido com ID: {result.inserted_id}")
+                        except Exception as insert_error:
+                            print(f"ERRO ao inserir emprestimo {loan.id}: {insert_error}")
+
 
         except Exception as e:
-            print(f"ERRO GERAL na inicializacao: {e}")
+            print(f"ERRO: Falha na inicialização de dados: {e}")
             import traceback
             traceback.print_exc()
 
@@ -181,7 +226,6 @@ class DatabaseManager:
         """Adiciona um novo usuário ao banco de dados"""
         try:
             result = db_config.users_collection.insert_one(user.to_dict())
-            print(f"SUCESSO: Usuario {user.name} adicionado com ID: {result.inserted_id}")
             return result.inserted_id
         except Exception as e:
             print(f"ERRO: Falha ao adicionar usuario: {e}")
@@ -191,7 +235,6 @@ class DatabaseManager:
         """Adiciona um novo livro ao banco de dados"""
         try:
             result = db_config.books_collection.insert_one(book.to_dict())
-            print(f"SUCESSO: Livro '{book.title}' adicionado com ID: {result.inserted_id}")
             return result.inserted_id
         except Exception as e:
             print(f"ERRO: Falha ao adicionar livro: {e}")
@@ -214,9 +257,7 @@ class DatabaseManager:
                     {"id": loan.book_id},
                     {"$set": {"available": False}}
                 )
-                print(f"SUCESSO: Livro '{book.title}' marcado como emprestado")
 
-            print(f"SUCESSO: Emprestimo {loan.id} registrado com ID: {result.inserted_id}")
             return result.inserted_id
         except Exception as e:
             print(f"ERRO: Falha ao adicionar emprestimo: {e}")
@@ -224,30 +265,39 @@ class DatabaseManager:
 
     def get_usuarios(self) -> List[User]:
         """Retorna lista de todos os usuários"""
-        try:
-            users_data = list(db_config.users_collection.find())
-            return [User.from_dict(user_data) for user_data in users_data]
-        except Exception as e:
-            print(f"ERRO: Falha ao buscar usuarios: {e}")
-            return []
+        if self.using_memory:
+            return self.memory_users.copy()
+        else:
+            try:
+                users_data = list(db_config.users_collection.find())
+                return [User.from_dict(user_data) for user_data in users_data]
+            except Exception as e:
+                print(f"ERRO: Falha ao buscar usuarios: {e}")
+                return []
 
     def get_livros(self) -> List[Book]:
         """Retorna lista de todos os livros"""
-        try:
-            books_data = list(db_config.books_collection.find())
-            return [Book.from_dict(book_data) for book_data in books_data]
-        except Exception as e:
-            print(f"ERRO: Falha ao buscar livros: {e}")
-            return []
+        if self.using_memory:
+            return self.memory_books.copy()
+        else:
+            try:
+                books_data = list(db_config.books_collection.find())
+                return [Book.from_dict(book_data) for book_data in books_data]
+            except Exception as e:
+                print(f"ERRO: Falha ao buscar livros: {e}")
+                return []
 
     def get_emprestimos(self) -> List[Loan]:
         """Retorna lista de todos os empréstimos"""
-        try:
-            loans_data = list(db_config.loans_collection.find())
-            return [Loan.from_dict(loan_data) for loan_data in loans_data]
-        except Exception as e:
-            print(f"ERRO: Falha ao buscar emprestimos: {e}")
-            return []
+        if self.using_memory:
+            return self.memory_loans.copy()
+        else:
+            try:
+                loans_data = list(db_config.loans_collection.find())
+                return [Loan.from_dict(loan_data) for loan_data in loans_data]
+            except Exception as e:
+                print(f"ERRO: Falha ao buscar emprestimos: {e}")
+                return []
 
     def get_livros_disponiveis(self) -> List[Book]:
         """Retorna lista de livros disponíveis"""
@@ -334,7 +384,6 @@ class DatabaseManager:
                 book = self.get_livro_por_id(loan.book_id)
                 book_title = book.title if book else "Livro desconhecido"
 
-                print(f"SUCESSO: Livro '{book_title}' devolvido com sucesso")
                 return True
             else:
                 print(f"ERRO: Falha ao atualizar emprestimo {loan_id}")

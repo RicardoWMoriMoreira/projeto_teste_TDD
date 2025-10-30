@@ -2,11 +2,9 @@ from Model import model as md
 from datetime import datetime
 
 
-class Controller:
+class Controler():
     def __init__(self, login_required=True):
         self.login_required = login_required
-
-
 
     def devolver_livro(self, loan_id):
         """Devolve um livro"""

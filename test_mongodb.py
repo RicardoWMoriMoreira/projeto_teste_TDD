@@ -49,7 +49,7 @@ def test_mongodb_connection():
 if __name__ == "__main__":
     success = test_mongodb_connection()
     if success:
-        print("\n🎉 MongoDB está funcionando corretamente!")
+        print("\nSISTEMA DE GESTA DE BIBLIOTECA")
         print("📝 Você pode executar a aplicação com: python src/main.py")
     else:
         print("\n❌ Problemas com MongoDB. Verifique a instalação e configuração.")
