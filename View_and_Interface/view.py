@@ -31,13 +31,19 @@ class BibliotecaController(BaseHTTPRequestHandler):
 
         elif self.path == "/listar_usuarios":
             resposta = ""
-            # Filtrar apenas usuários com todos os campos preenchidos
-            usuarios_validos = [
-                u for u in controller.get_usuarios()
-                if u.id and u.name and u.email and u.type and
-                   str(u.id).strip() and str(u.name).strip() and
-                   str(u.email).strip() and str(u.type).strip()
-            ]
+            # Filtrar apenas usuários com todos os campos preenchidos e não vazios
+            todos_usuarios = controller.get_usuarios()
+            usuarios_validos = []
+
+            for u in todos_usuarios:
+                # Verificar se todos os campos existem e não são vazios
+                id_valido = u.id is not None and str(u.id).strip() != ""
+                name_valido = u.name is not None and str(u.name).strip() != ""
+                email_valido = u.email is not None and str(u.email).strip() != ""
+                type_valido = u.type is not None and str(u.type).strip() != ""
+
+                if id_valido and name_valido and email_valido and type_valido:
+                    usuarios_validos.append(u)
 
             if not usuarios_validos:
                 resposta = '<div class="no-users">Nenhum usuário cadastrado com dados completos.</div>'
@@ -93,9 +99,9 @@ class BibliotecaController(BaseHTTPRequestHandler):
                 resposta = '<div class="no-users">Nenhum livro cadastrado com dados completos.</div>'
             else:
                 for livro in livros_validos:
-                status = "Disponível" if livro.available else "Emprestado"
-                status_class = "status-available" if livro.available else "status-borrowed"
-                icon = "📚" if livro.available else "🔒"
+                    status = "Disponível" if livro.available else "Emprestado"
+                    status_class = "status-available" if livro.available else "status-borrowed"
+                    icon = "📚" if livro.available else "🔒"
 
                 resposta += f"""
                 <div class="book-card">
@@ -138,14 +144,14 @@ class BibliotecaController(BaseHTTPRequestHandler):
                 resposta = '<div class="no-users">Nenhum empréstimo cadastrado com dados completos.</div>'
             else:
                 for emprestimo in emprestimos_validos:
-                usuario = controller.get_usuario_por_id(emprestimo.user_id)
-                livro = controller.get_livro_por_id(emprestimo.book_id)
-                usuario_nome = usuario.name if usuario else "Usuário não encontrado"
-                livro_titulo = livro.title if livro else "Livro não encontrado"
-                data_devolucao = emprestimo.return_date.strftime("%d/%m/%Y") if emprestimo.return_date else "Não devolvido"
-                status_class = "status-returned" if emprestimo.return_date else "status-active"
-                status_text = "Devolvido" if emprestimo.return_date else "Em andamento"
-                icon = "✅" if emprestimo.return_date else "📖"
+                    usuario = controller.get_usuario_por_id(emprestimo.user_id)
+                    livro = controller.get_livro_por_id(emprestimo.book_id)
+                    usuario_nome = usuario.name if usuario else "Usuário não encontrado"
+                    livro_titulo = livro.title if livro else "Livro não encontrado"
+                    data_devolucao = emprestimo.return_date.strftime("%d/%m/%Y") if emprestimo.return_date else "Não devolvido"
+                    status_class = "status-returned" if emprestimo.return_date else "status-active"
+                    status_text = "Devolvido" if emprestimo.return_date else "Em andamento"
+                    icon = "✅" if emprestimo.return_date else "📖"
 
                 resposta += f"""
                 <div class="loan-card">
@@ -209,11 +215,24 @@ class BibliotecaController(BaseHTTPRequestHandler):
             dados = self.rfile.read(tamanho).decode("utf-8")
             params = parse_qs(dados)
 
+            # Validar que todos os campos obrigatórios estão preenchidos
+            user_id = params.get("id", [""])[0].strip()
+            user_name = params.get("name", [""])[0].strip()
+            user_email = params.get("email", [""])[0].strip()
+            user_type = params.get("type", [""])[0].strip()
+
+            if not user_id or not user_name or not user_email or not user_type:
+                self.send_response(400)
+                self.send_header("Content-type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b'{"status": "error", "message": "Todos os campos s\\u00e3o obrigat\\u00f3rios!"}')
+                return
+
             usuario = {
-                "id": params.get("id", [""])[0],
-                "name": params.get("name", [""])[0],
-                "email": params.get("email", [""])[0],
-                "type": params.get("type", [""])[0]
+                "id": user_id,
+                "name": user_name,
+                "email": user_email,
+                "type": user_type
             }
 
             controller.adicionar_usuario(usuario)
@@ -228,11 +247,24 @@ class BibliotecaController(BaseHTTPRequestHandler):
             dados = self.rfile.read(tamanho).decode("utf-8")
             params = parse_qs(dados)
 
+            # Validar que todos os campos obrigatórios estão preenchidos
+            book_id = params.get("id", [""])[0].strip()
+            book_title = params.get("title", [""])[0].strip()
+            book_author = params.get("author", [""])[0].strip()
+            book_isbn = params.get("isbn", [""])[0].strip()
+
+            if not book_id or not book_title or not book_author or not book_isbn:
+                self.send_response(400)
+                self.send_header("Content-type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b'{"status": "error", "message": "Todos os campos s\\u00e3o obrigat\\u00f3rios!"}')
+                return
+
             livro = {
-                "id": params.get("id", [""])[0],
-                "title": params.get("title", [""])[0],
-                "author": params.get("author", [""])[0],
-                "isbn": params.get("isbn", [""])[0],
+                "id": book_id,
+                "title": book_title,
+                "author": book_author,
+                "isbn": book_isbn,
                 "available": True
             }
 

@@ -351,9 +351,8 @@
                             window.location.href = '/menu';
                         }, 3000);
                     } else {
-                        // Se houver erro, redireciona para o menu
-                        console.error('Erro no cadastro:', data);
-                        window.location.href = '/menu';
+                        // Mostra mensagem de erro
+                        alert('Erro: ' + data.message);
                     }
                 })
                 .catch(error => {
