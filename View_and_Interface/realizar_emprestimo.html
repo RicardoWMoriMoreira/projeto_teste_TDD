@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Empréstimo - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #6c757d;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Realizar Empréstimo</h1>
+        <form action="/realizar_emprestimo" method="post">
+            <div class="form-group">
+                <label for="user_id">Usuário:</label>
+                <select id="user_id" name="user_id" required>
+                    <option value="">Selecione um usuário</option>
+                    <option value="u1">João Silva (Estudante)</option>
+                    <option value="u2">Maria Santos (Professor)</option>
+                    <option value="u3">Pedro Costa (Estudante)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="book_id">Livro:</label>
+                <select id="book_id" name="book_id" required>
+                    <option value="">Selecione um livro</option>
+                    <option value="b1">Python para Iniciantes - Alice Brown</option>
+                    <option value="b2">Algoritmos e Estruturas de Dados - Bob Wilson</option>
+                    <option value="b3">Banco de Dados Relacionais - Carol Davis</option>
+                </select>
+            </div>
+            <button type="submit">Realizar Empréstimo</button>
+        </form>
+        <a href="/menu" class="back-link">Voltar ao Menu</a>
+    </div>
+</body>
+</html>
