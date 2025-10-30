@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
-from typing import Optional, List
+from typing import Optional, List, Dict
 from config.database import db_config
 
 
@@ -296,6 +296,343 @@ class DatabaseManager:
         except Exception as e:
             print(f"❌ Erro ao devolver livro: {e}")
             return False
+
+    # ========================================
+    # PIPELINES DE AGGREGATION - RELATÓRIOS
+    # ========================================
+
+    def get_relatorio_livros_mais_emprestados(self, limit: int = 10) -> List[Dict]:
+        """
+        Pipeline: Livros mais emprestados
+        Usa aggregation pipeline para contar empréstimos por livro
+        """
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$book_id",
+                    "total_emprestimos": {"$sum": 1},
+                    "emprestimos_ativos": {
+                        "$sum": {"$cond": [{"$eq": ["$return_date", None]}, 1, 0]}
+                    }
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "livros",
+                    "localField": "_id",
+                    "foreignField": "id",
+                    "as": "livro_info"
+                }
+            },
+            {"$unwind": "$livro_info"},
+            {
+                "$project": {
+                    "livro_id": "$_id",
+                    "titulo": "$livro_info.title",
+                    "autor": "$livro_info.author",
+                    "isbn": "$livro_info.isbn",
+                    "total_emprestimos": 1,
+                    "emprestimos_ativos": 1,
+                    "disponivel": "$livro_info.available"
+                }
+            },
+            {"$sort": {"total_emprestimos": -1}},
+            {"$limit": limit}
+        ]
+
+        try:
+            result = list(db_config.loans_collection.aggregate(pipeline))
+            return result
+        except Exception as e:
+            print(f"❌ Erro na pipeline de livros mais emprestados: {e}")
+            return []
+
+    def get_relatorio_usuarios_mais_ativos(self, limit: int = 10) -> List[Dict]:
+        """
+        Pipeline: Usuários que mais fizeram empréstimos
+        """
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$user_id",
+                    "total_emprestimos": {"$sum": 1},
+                    "emprestimos_ativos": {
+                        "$sum": {"$cond": [{"$eq": ["$return_date", None]}, 1, 0]}
+                    }
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "usuarios",
+                    "localField": "_id",
+                    "foreignField": "id",
+                    "as": "usuario_info"
+                }
+            },
+            {"$unwind": "$usuario_info"},
+            {
+                "$project": {
+                    "usuario_id": "$_id",
+                    "nome": "$usuario_info.name",
+                    "email": "$usuario_info.email",
+                    "tipo": "$usuario_info.type",
+                    "total_emprestimos": 1,
+                    "emprestimos_ativos": 1
+                }
+            },
+            {"$sort": {"total_emprestimos": -1}},
+            {"$limit": limit}
+        ]
+
+        try:
+            result = list(db_config.loans_collection.aggregate(pipeline))
+            return result
+        except Exception as e:
+            print(f"❌ Erro na pipeline de usuários mais ativos: {e}")
+            return []
+
+    def get_estatisticas_gerais(self) -> Dict:
+        """
+        Pipeline: Estatísticas gerais da biblioteca
+        """
+        try:
+            # Estatísticas de usuários
+            usuarios_stats = list(db_config.users_collection.aggregate([
+                {
+                    "$group": {
+                        "_id": "$type",
+                        "count": {"$sum": 1}
+                    }
+                }
+            ]))
+
+            # Estatísticas de livros
+            livros_result = list(db_config.books_collection.aggregate([
+                {
+                    "$group": {
+                        "_id": None,
+                        "total_livros": {"$sum": 1},
+                        "livros_disponiveis": {
+                            "$sum": {"$cond": [{"$eq": ["$available", True]}, 1, 0]}
+                        },
+                        "livros_emprestados": {
+                            "$sum": {"$cond": [{"$eq": ["$available", False]}, 1, 0]}
+                        }
+                    }
+                }
+            ]))
+            livros_stats = livros_result[0] if livros_result else {
+                "total_livros": 0, "livros_disponiveis": 0, "livros_emprestados": 0
+            }
+
+            # Estatísticas de empréstimos
+            emprestimos_result = list(db_config.loans_collection.aggregate([
+                {
+                    "$group": {
+                        "_id": None,
+                        "total_emprestimos": {"$sum": 1},
+                        "emprestimos_ativos": {
+                            "$sum": {"$cond": [{"$eq": ["$return_date", None]}, 1, 0]}
+                        },
+                        "emprestimos_finalizados": {
+                            "$sum": {"$cond": [{"$ne": ["$return_date", None]}, 1, 0]}
+                        }
+                    }
+                }
+            ]))
+            emprestimos_stats = emprestimos_result[0] if emprestimos_result else {
+                "total_emprestimos": 0, "emprestimos_ativos": 0, "emprestimos_finalizados": 0
+            }
+
+            return {
+                "usuarios_por_tipo": usuarios_stats,
+                "livros": livros_stats,
+                "emprestimos": emprestimos_stats
+            }
+
+        except Exception as e:
+            print(f"❌ Erro ao gerar estatísticas gerais: {e}")
+            return {}
+
+    def get_relatorio_emprestimos_por_periodo(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+        """
+        Pipeline: Empréstimos realizados em um período específico
+        """
+        pipeline = [
+            {
+                "$match": {
+                    "loan_date": {
+                        "$gte": start_date.isoformat(),
+                        "$lte": end_date.isoformat()
+                    }
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "usuarios",
+                    "localField": "user_id",
+                    "foreignField": "id",
+                    "as": "usuario"
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "livros",
+                    "localField": "book_id",
+                    "foreignField": "id",
+                    "as": "livro"
+                }
+            },
+            {"$unwind": "$usuario"},
+            {"$unwind": "$livro"},
+            {
+                "$project": {
+                    "emprestimo_id": "$id",
+                    "data_emprestimo": "$loan_date",
+                    "data_devolucao": "$return_date",
+                    "usuario": {
+                        "id": "$usuario.id",
+                        "nome": "$usuario.name",
+                        "tipo": "$usuario.type"
+                    },
+                    "livro": {
+                        "id": "$livro.id",
+                        "titulo": "$livro.title",
+                        "autor": "$livro.author"
+                    },
+                    "status": {
+                        "$cond": {
+                            "if": {"$eq": ["$return_date", None]},
+                            "then": "Ativo",
+                            "else": "Finalizado"
+                        }
+                    }
+                }
+            },
+            {"$sort": {"data_emprestimo": -1}}
+        ]
+
+        try:
+            result = list(db_config.loans_collection.aggregate(pipeline))
+            return result
+        except Exception as e:
+            print(f"❌ Erro na pipeline de empréstimos por período: {e}")
+            return []
+
+    def get_relatorio_livros_atrasados(self) -> List[Dict]:
+        """
+        Pipeline: Livros emprestados há mais de 30 dias (atrasados)
+        """
+        # Considera atraso após 30 dias
+        limite_dias = 30
+        data_limite = datetime.now() - timedelta(days=limite_dias)
+
+        pipeline = [
+            {
+                "$match": {
+                    "return_date": None,  # Ainda não devolvido
+                    "loan_date": {"$lt": data_limite.isoformat()}
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "usuarios",
+                    "localField": "user_id",
+                    "foreignField": "id",
+                    "as": "usuario"
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "livros",
+                    "localField": "book_id",
+                    "foreignField": "id",
+                    "as": "livro"
+                }
+            },
+            {"$unwind": "$usuario"},
+            {"$unwind": "$livro"},
+            {
+                "$project": {
+                    "emprestimo_id": "$id",
+                    "data_emprestimo": "$loan_date",
+                    "usuario": {
+                        "id": "$usuario.id",
+                        "nome": "$usuario.name",
+                        "email": "$usuario.email",
+                        "tipo": "$usuario.type"
+                    },
+                    "livro": {
+                        "id": "$livro.id",
+                        "titulo": "$livro.title",
+                        "autor": "$livro.author",
+                        "isbn": "$livro.isbn"
+                    }
+                }
+            },
+            {"$sort": {"data_emprestimo": 1}}  # Mais antigos primeiro
+        ]
+
+        try:
+            result = list(db_config.loans_collection.aggregate(pipeline))
+
+            # Calcular dias de atraso em Python (mais confiável)
+            for item in result:
+                loan_date = datetime.fromisoformat(item['data_emprestimo'])
+                item['dias_atraso'] = (datetime.now() - loan_date).days
+
+            return result
+        except Exception as e:
+            print(f"❌ Erro na pipeline de livros atrasados: {e}")
+            return []
+
+    def get_relatorio_popularidade_por_categoria(self) -> List[Dict]:
+        """
+        Pipeline: Análise de popularidade por tipo de usuário
+        """
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "usuarios",
+                    "localField": "user_id",
+                    "foreignField": "id",
+                    "as": "usuario"
+                }
+            },
+            {"$unwind": "$usuario"},
+            {
+                "$group": {
+                    "_id": "$usuario.type",
+                    "total_emprestimos": {"$sum": 1},
+                    "emprestimos_ativos": {
+                        "$sum": {"$cond": [{"$eq": ["$return_date", None]}, 1, 0]}
+                    },
+                    "usuarios_unicos": {"$addToSet": "$user_id"}
+                }
+            },
+            {
+                "$project": {
+                    "categoria_usuario": "$_id",
+                    "total_emprestimos": 1,
+                    "emprestimos_ativos": 1,
+                    "numero_usuarios_unicos": {"$size": "$usuarios_unicos"},
+                    "media_emprestimos_por_usuario": {
+                        "$round": [
+                            {"$divide": ["$total_emprestimos", {"$size": "$usuarios_unicos"}]},
+                            2
+                        ]
+                    }
+                }
+            },
+            {"$sort": {"total_emprestimos": -1}}
+        ]
+
+        try:
+            result = list(db_config.loans_collection.aggregate(pipeline))
+            return result
+        except Exception as e:
+            print(f"❌ Erro na pipeline de popularidade por categoria: {e}")
+            return []
 
 
 # Instância global do gerenciador de banco de dados
