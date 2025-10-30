@@ -31,35 +31,46 @@ class BibliotecaController(BaseHTTPRequestHandler):
 
         elif self.path == "/listar_usuarios":
             resposta = ""
-            for usuario in controller.get_usuarios():
-                # Define o ícone baseado no tipo de usuário
-                if usuario.type == "Professor":
-                    icon = "👨‍🏫"
-                elif usuario.type == "Funcionário":
-                    icon = "👔"
-                else:
-                    icon = "👨‍🎓"
+            # Filtrar apenas usuários com todos os campos preenchidos
+            usuarios_validos = [
+                u for u in controller.get_usuarios()
+                if u.id and u.name and u.email and u.type and
+                   str(u.id).strip() and str(u.name).strip() and
+                   str(u.email).strip() and str(u.type).strip()
+            ]
 
-                resposta += f"""
-                <div class="user-card">
-                    <div class="user-icon">{icon}</div>
-                    <div class="user-name">{_esc(usuario.name)}</div>
-                    <div class="user-info">
-                        <div class="user-info-item">
-                            <span class="user-info-label">ID:</span>
-                            <span class="user-info-value">{_esc(usuario.id)}</span>
-                        </div>
-                        <div class="user-info-item">
-                            <span class="user-info-label">Email:</span>
-                            <span class="user-info-value">{_esc(usuario.email)}</span>
-                        </div>
-                        <div class="user-info-item">
-                            <span class="user-info-label">Tipo:</span>
-                            <span class="user-info-value">{_esc(usuario.type)}</span>
+            if not usuarios_validos:
+                resposta = '<div class="no-users">Nenhum usuário cadastrado com dados completos.</div>'
+            else:
+                for usuario in usuarios_validos:
+                    # Define o ícone baseado no tipo de usuário
+                    if usuario.type == "Professor":
+                        icon = "👨‍🏫"
+                    elif usuario.type == "Funcionário":
+                        icon = "👔"
+                    else:
+                        icon = "👨‍🎓"
+
+                    resposta += f"""
+                    <div class="user-card">
+                        <div class="user-icon">{icon}</div>
+                        <div class="user-name">{_esc(usuario.name)}</div>
+                        <div class="user-info">
+                            <div class="user-info-item">
+                                <span class="user-info-label">ID:</span>
+                                <span class="user-info-value">{_esc(usuario.id)}</span>
+                            </div>
+                            <div class="user-info-item">
+                                <span class="user-info-label">Email:</span>
+                                <span class="user-info-value">{_esc(usuario.email)}</span>
+                            </div>
+                            <div class="user-info-item">
+                                <span class="user-info-label">Tipo:</span>
+                                <span class="user-info-value">{_esc(usuario.type)}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                """
+                    """
             with open("View_and_Interface/listar_usuarios.html", "r", encoding="utf-8") as f:
                 conteudo = f.read()
             conteudo = conteudo.replace("<!--USUARIOS-->", resposta)
@@ -70,7 +81,18 @@ class BibliotecaController(BaseHTTPRequestHandler):
 
         elif self.path == "/listar_livros":
             resposta = ""
-            for livro in controller.get_livros():
+            # Filtrar apenas livros com todos os campos preenchidos
+            livros_validos = [
+                l for l in controller.get_livros()
+                if l.id and l.title and l.author and l.isbn and
+                   str(l.id).strip() and str(l.title).strip() and
+                   str(l.author).strip() and str(l.isbn).strip()
+            ]
+
+            if not livros_validos:
+                resposta = '<div class="no-users">Nenhum livro cadastrado com dados completos.</div>'
+            else:
+                for livro in livros_validos:
                 status = "Disponível" if livro.available else "Emprestado"
                 status_class = "status-available" if livro.available else "status-borrowed"
                 icon = "📚" if livro.available else "🔒"
@@ -105,7 +127,17 @@ class BibliotecaController(BaseHTTPRequestHandler):
 
         elif self.path == "/listar_emprestimos":
             resposta = ""
-            for emprestimo in controller.get_emprestimos():
+            # Filtrar apenas empréstimos com dados válidos
+            emprestimos_validos = [
+                e for e in controller.get_emprestimos()
+                if e.id and e.user_id and e.book_id and e.loan_date and
+                   str(e.id).strip() and str(e.user_id).strip() and str(e.book_id).strip()
+            ]
+
+            if not emprestimos_validos:
+                resposta = '<div class="no-users">Nenhum empréstimo cadastrado com dados completos.</div>'
+            else:
+                for emprestimo in emprestimos_validos:
                 usuario = controller.get_usuario_por_id(emprestimo.user_id)
                 livro = controller.get_livro_por_id(emprestimo.book_id)
                 usuario_nome = usuario.name if usuario else "Usuário não encontrado"
